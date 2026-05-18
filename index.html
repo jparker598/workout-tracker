@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>Workout Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #0a0a0a; color: #fff; font-family: 'Barlow', sans-serif; overscroll-behavior: none; }
+  button { font-family: 'Barlow', sans-serif; border: none; cursor: pointer; }
+  input { font-family: 'Barlow', sans-serif; }
+  #app { min-height: 100vh; background: #0a0a0a; padding-bottom: 80px; }
+  .header { padding: 52px 16px 14px; border-bottom: 1px solid #161616; }
+  .header-title { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; letter-spacing: 1px; color: #fff; }
+  .header-sub { font-size: 10px; color: #444; letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; }
+  .tab-row { display: flex; gap: 8px; margin-top: 14px; }
+  .tab-btn { padding: 7px 18px; border-radius: 20px; border: 1px solid; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s; }
+  .section { padding: 14px 16px 0; }
+  .section-label { font-size: 10px; color: #444; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .week-row { display: flex; gap: 6px; }
+  .week-btn { flex: 1; padding: 9px 0; border-radius: 8px; border: 1px solid; font-size: 12px; font-weight: 700; transition: all 0.2s; }
+  .prog-wrap { padding: 12px 16px 0; }
+  .prog-header { display: flex; justify-content: space-between; font-size: 10px; color: #444; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .prog-bar { height: 4px; background: #1a1a1a; border-radius: 4px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .day-row { display: flex; gap: 8px; overflow-x: auto; padding: 14px 16px; scrollbar-width: none; -ms-overflow-style: none; }
+  .day-row::-webkit-scrollbar { display: none; }
+  .day-btn { flex-shrink: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid; cursor: pointer; min-width: 58px; text-align: center; position: relative; transition: all 0.2s; }
+  .day-btn-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; }
+  .day-btn-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; margin-top: 2px; }
+  .day-done-badge { position: absolute; top: -5px; right: -5px; width: 15px; height: 15px; border-radius: 50%; font-size: 9px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 900; }
+  .day-header { margin: 0 16px 12px; padding: 14px 16px; border-radius: 12px; }
+  .day-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+  .day-sub { font-size: 11px; color: #777; margin-top: 2px; }
+  .day-complete-msg { margin-top: 10px; font-size: 12px; font-weight: 700; }
+  .ex-card { margin: 0 16px 8px; border-radius: 12px; border: 1px solid; overflow: hidden; transition: border-color 0.2s, background 0.2s; }
+  .ex-header { display: flex; align-items: center; padding: 13px 14px; gap: 10px; cursor: pointer; }
+  .check-circle { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #000; font-weight: 900; transition: all 0.2s; cursor: pointer; }
+  .ex-name { flex: 1; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+  .ex-badge { font-size: 10px; padding: 3px 9px; border-radius: 10px; font-weight: 700; flex-shrink: 0; }
+  .ex-chevron { font-size: 11px; color: #333; margin-left: 2px; transition: transform 0.2s; }
+  .ex-body { padding: 0 14px 14px; }
+  .ex-body-text { font-size: 12px; color: #666; line-height: 1.6; }
+  .sets-label { font-size: 11px; color: #444; margin-bottom: 8px; }
+  .sets-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .set-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .set-label { font-size: 9px; color: #444; letter-spacing: 1px; text-transform: uppercase; }
+  .set-input { width: 56px; padding: 6px 4px; background: #181818; border: 1px solid #2a2a2a; border-radius: 6px; color: #fff; font-size: 13px; text-align: center; outline: none; -webkit-appearance: none; }
+  .set-input:focus { border-color: #444; }
+  .prog-tab { padding: 16px 16px 0; }
+  .week-grid { display: flex; gap: 8px; margin-bottom: 22px; }
+  .week-card { flex: 1; background: #111; border-radius: 10px; padding: 12px 8px; border: 1px solid #1a1a1a; text-align: center; }
+  .week-card-label { font-size: 9px; color: #444; letter-spacing: 1px; text-transform: uppercase; }
+  .week-card-pct { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; margin-top: 4px; }
+  .day-prog-card { margin-bottom: 10px; padding: 14px; border-radius: 12px; background: #0f0f0f; border: 1px solid #1a1a1a; }
+  .day-prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .day-prog-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; }
+  .day-prog-sub { font-size: 12px; color: #555; margin-left: 8px; }
+  .day-prog-pct { font-size: 12px; font-weight: 700; }
+  .ex-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
+  .ex-chip { font-size: 10px; padding: 3px 8px; border-radius: 8px; font-weight: 600; }
+  .save-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e1e1e; color: #aaa; font-size: 11px; padding: 8px 16px; border-radius: 20px; border: 1px solid #2a2a2a; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 99; letter-spacing: 1px; }
+  .save-toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="save-toast" id="toast">✓ Saved</div>
+<script>
+const PLAN = [
+  {day:1,label:"PUSH",sub:"Chest · Shoulders · Arms",color:"#FF4D00",exercises:[{name:"Incline Barbell Press",sets:4,reps:"6–8"},{name:"Flat Dumbbell Press",sets:3,reps:"8–12"},{name:"Overhead Press",sets:4,reps:"8–10"},{name:"Lateral Raise",sets:3,reps:"12–15"},{name:"Tricep Rope Pushdown",sets:3,reps:"12–15"},{name:"Overhead Tricep Extension",sets:3,reps:"10–12"},{name:"LISS Cardio",sets:1,reps:"10–15 min",cardio:true}]},
+  {day:2,label:"PULL",sub:"Back · Rear Delt · Arms",color:"#0088FF",exercises:[{name:"Weighted Pull-Ups",sets:4,reps:"6–8"},{name:"Barbell Row",sets:4,reps:"6–8"},{name:"Seated Cable Row",sets:3,reps:"10–12"},{name:"Rear Delt Fly",sets:3,reps:"15–20"},{name:"Hammer Curl",sets:3,reps:"10–12"},{name:"Incline Dumbbell Curl",sets:3,reps:"10–12"},{name:"LISS Cardio",sets:1,reps:"10–15 min",cardio:true}]},
+  {day:3,label:"LEGS",sub:"Quads · Hamstrings · Calves",color:"#00C896",exercises:[{name:"Barbell Squat",sets:4,reps:"5–8"},{name:"Romanian Deadlift",sets:4,reps:"8–10"},{name:"Leg Extension",sets:3,reps:"12–15"},{name:"Leg Curl",sets:3,reps:"12–15"},{name:"Standing Calf Raise",sets:4,reps:"15–20"},{name:"LISS Cardio",sets:1,reps:"10–15 min",cardio:true}]},
+  {day:4,label:"REST",sub:"Active Recovery",color:"#555555",rest:true,exercises:[{name:"8,000–10,000 Steps",sets:1,reps:"All day",cardio:true},{name:"Mobility / Stretching",sets:1,reps:"20–30 min",cardio:true}]},
+  {day:5,label:"UPPER",sub:"Chest · Back · Arms",color:"#C800FF",exercises:[{name:"Cable Fly / Pec Deck",sets:3,reps:"12–15"},{name:"Dumbbell Pullover",sets:3,reps:"12–15"},{name:"Lat Pulldown (Close Grip)",sets:3,reps:"10–12"},{name:"Single-Arm DB Row",sets:3,reps:"10–12"},{name:"EZ Bar Curl",sets:3,reps:"10–12"},{name:"Skull Crushers",sets:3,reps:"10–12"},{name:"LISS Cardio",sets:1,reps:"10–15 min",cardio:true}]},
+  {day:6,label:"ABS + SHOULDERS",sub:"Core · Shoulders · Fat Burn",color:"#FFB800",exercises:[{name:"Machine Shoulder Press",sets:3,reps:"10–12"},{name:"Cable Lateral Raise",sets:3,reps:"15–20"},{name:"Hanging Leg Raise",sets:3,reps:"15"},{name:"Cable Crunch",sets:3,reps:"20"},{name:"Ab Wheel Rollout",sets:3,reps:"12"},{name:"Plank",sets:3,reps:"45 sec"},{name:"Fat Burn Finisher Circuit",sets:1,reps:"15 min",cardio:true}]},
+];
+const STORAGE_KEY="wt_data_v1";
+let state={week:0,dayIdx:0,tab:"tracker",expanded:null,logs:{},done:{}};
+function loadState(){try{const s=localStorage.getItem(STORAGE_KEY);if(s){const p=JSON.parse(s);state.logs=p.logs||{};state.done=p.done||{};}}catch(e){}}
+let toastTimer=null;
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({logs:state.logs,done:state.done}));showToast();}catch(e){}}
+function showToast(){const t=document.getElementById("toast");t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1500);}
+function lk(w,d,e,s,f){return`${w}-${d}-${e}-${s}-${f}`;}
+function dk(w,d,e){return`${w}-${d}-${e}`;}
+function isDone(ei){return!!state.done[dk(state.week,state.dayIdx,ei)];}
+function allDone(di){return PLAN[di].exercises.every((_,ei)=>state.done[dk(state.week,di,ei)]);}
+function dayPct(){const day=PLAN[state.dayIdx];const comp=day.exercises.filter((_,i)=>isDone(i)).length;return Math.round((comp/day.exercises.length)*100);}
+function weekPct(){let total=0,comp=0;PLAN.forEach((d,di)=>d.exercises.forEach((_,ei)=>{total++;if(state.done[dk(state.week,di,ei)])comp++;}));return Math.round((comp/total)*100);}
+function weekPctFor(wi){let total=0,comp=0;PLAN.forEach((d,di)=>d.exercises.forEach((_,ei)=>{total++;if(state.done[dk(wi,di,ei)])comp++;}));return Math.round((comp/total)*100);}
+function dayPctFor(wi,di){const d=PLAN[di];const comp=d.exercises.filter((_,ei)=>state.done[dk(wi,di,ei)]).length;return Math.round((comp/d.exercises.length)*100);}
+function cardioNote(name){if(name==="Fat Burn Finisher Circuit")return"Pick 2 exercises: battle ropes, rowing machine, jump rope, or sled push. Go hard for 40 sec, rest 20 sec. Repeat for 15 minutes.";if(name==="LISS Cardio")return"Low intensity steady state: incline treadmill, stationary bike, or elliptical. Keep heart rate at 55–65% of max.";return"Focus on controlled, full-range movement. Use this time to recover actively.";}
+function render(){
+const day=PLAN[state.dayIdx];const accent=day.color;const wp=weekPct();const dp=dayPct();
+let html=`<div class="header"><div class="header-title">Workout Tracker</div><div class="header-sub">6-Day Muscle + Fat Burn Program</div><div class="tab-row"><button class="tab-btn" onclick="switchTab('tracker')" style="border-color:${state.tab==='tracker'?accent:'#252525'};background:${state.tab==='tracker'?accent:'transparent'};color:${state.tab==='tracker'?'#000':'#555'}">Tracker</button><button class="tab-btn" onclick="switchTab('progress')" style="border-color:${state.tab==='progress'?accent:'#252525'};background:${state.tab==='progress'?accent:'transparent'};color:${state.tab==='progress'?'#000':'#555'}">Progress</button></div></div>`;
+if(state.tab==="tracker"){
+html+=`<div class="section"><div class="section-label">Week</div><div class="week-row">`;
+[1,2,3,4].forEach((w,i)=>{html+=`<button class="week-btn" onclick="setWeek(${i})" style="border-color:${state.week===i?accent:'#1e1e1e'};background:${state.week===i?accent+'20':'#111'};color:${state.week===i?accent:'#555'}">WK ${w}</button>`;});
+html+=`</div></div>`;
+html+=`<div class="prog-wrap"><div class="prog-header"><span>Week Progress</span><span style="color:${accent}">${wp}%</span></div><div class="prog-bar"><div class="prog-fill" style="width:${wp}%;background:${accent}"></div></div></div>`;
+html+=`<div class="day-row">`;
+PLAN.forEach((d,i)=>{const ad=allDone(i);html+=`<button class="day-btn" onclick="setDay(${i})" style="border-color:${state.dayIdx===i?d.color:'#1a1a1a'};background:${state.dayIdx===i?d.color+'18':'#0f0f0f'};color:${state.dayIdx===i?d.color:'#444'}">${ad?`<div class="day-done-badge" style="background:${d.color}">✓</div>`:''}<div class="day-btn-label">Day ${d.day}</div><div class="day-btn-name">${d.label.split(' ')[0]}</div></button>`;});
+html+=`</div>`;
+html+=`<div class="day-header" style="background:${accent}12;border:1px solid ${accent}30"><div class="day-title" style="color:${accent}">Day ${day.day} — ${day.label}</div><div class="day-sub">${day.sub}</div><div class="prog-header" style="margin-top:10px;margin-bottom:5px"><span>Day Progress</span><span style="color:${accent}">${dp}%</span></div><div class="prog-bar"><div class="prog-fill" style="width:${dp}%;background:${accent}"></div></div>${dp===100?`<div class="day-complete-msg" style="color:${accent}">Day complete! 🔥</div>`:''}</div>`;
+day.exercises.forEach((ex,ei)=>{const done=isDone(ei);const isExp=state.expanded===ei;html+=`<div class="ex-card" style="border-color:${done?accent+'45':'#1a1a1a'};background:${done?accent+'08':'#0f0f0f'}"><div class="ex-header" onclick="toggleExpand(${ei})"><div class="check-circle" onclick="event.stopPropagation();toggleDone(${ei})" style="border-color:${done?accent:'#2e2e2e'};background:${done?accent:'transparent'}">${done?'✓':''}</div><div class="ex-name" style="color:${done?'#555':ex.cardio?accent:'#ddd'};text-decoration:${done?'line-through':'none'}">${ex.name}</div><span class="ex-badge" style="background:${ex.cardio?'#1e1e1e':accent+'22'};color:${ex.cardio?'#555':accent}">${ex.cardio?ex.reps:`${ex.sets}×${ex.reps}`}</span><span class="ex-chevron">${isExp?'▲':'▼'}</span></div>`;
+if(isExp){html+=`<div class="ex-body">`;if(ex.cardio){html+=`<div class="ex-body-text">${cardioNote(ex.name)}</div>`;}else{html+=`<div class="sets-label">Log weight (lbs) and reps per set</div><div class="sets-row">`;for(let si=0;si<ex.sets;si++){const wVal=state.logs[lk(state.week,state.dayIdx,ei,si,'w')]||'';const rVal=state.logs[lk(state.week,state.dayIdx,ei,si,'r')]||'';html+=`<div class="set-box"><div class="set-label">Set ${si+1}</div><input class="set-input" type="number" inputmode="decimal" placeholder="lbs" value="${wVal}" onchange="setLog(${ei},${si},'w',this.value)"><input class="set-input" type="number" inputmode="decimal" placeholder="reps" value="${rVal}" onchange="setLog(${ei},${si},'r',this.value)"></div>`;}html+=`</div>`;}html+=`</div>`;}html+=`</div>`;});
+}else{
+html+=`<div class="prog-tab"><div class="section-label">Completion by Week</div><div class="week-grid">`;
+[1,2,3,4].forEach((_,i)=>{const pct=weekPctFor(i);const col=pct===100?'#00C896':pct>0?'#FFB800':'#2a2a2a';html+=`<div class="week-card" onclick="setWeek(${i});switchTab('tracker')" style="cursor:pointer"><div class="week-card-label">Wk ${i+1}</div><div class="week-card-pct" style="color:${col}">${pct}%</div></div>`;});
+html+=`</div><div class="section-label">Week ${state.week+1} — Day Breakdown</div>`;
+PLAN.forEach((d,di)=>{const pct=dayPctFor(state.week,di);const pctCol=pct===100?'#00C896':'#444';html+=`<div class="day-prog-card"><div class="day-prog-header"><div><span class="day-prog-name" style="color:${d.color}">Day ${d.day}</span><span class="day-prog-sub">${d.label}</span></div><span class="day-prog-pct" style="color:${pctCol}">${pct}%</span></div><div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${d.color}"></div></div><div class="ex-chips">`;d.exercises.forEach((_ex,ei)=>{const done2=state.done[dk(state.week,di,ei)];const label=_ex.name.length>18?_ex.name.slice(0,16)+'…':_ex.name;html+=`<span class="ex-chip" style="background:${done2?d.color+'22':'#181818'};color:${done2?d.color:'#444'}">${label}</span>`;});html+=`</div></div>`;});
+html+=`</div>`;
+}
+document.getElementById("app").innerHTML=html;
+}
+function switchTab(t){state.tab=t;render();}
+function setWeek(i){state.week=i;state.expanded=null;render();}
+function setDay(i){state.dayIdx=i;state.expanded=null;render();}
+function toggleExpand(ei){state.expanded=state.expanded===ei?null:ei;render();}
+function toggleDone(ei){const k=dk(state.week,state.dayIdx,ei);state.done[k]=!state.done[k];saveState();render();}
+function setLog(ei,si,field,val){state.logs[lk(state.week,state.dayIdx,ei,si,field)]=val;saveState();}
+loadState();
+render();
+</script>
+</body>
+</html>
