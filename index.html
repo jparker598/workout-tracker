@@ -65,8 +65,6 @@
   .ex-chip { font-size: 10px; padding: 3px 8px; border-radius: 8px; font-weight: 600; }
   .save-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e1e1e; color: #aaa; font-size: 11px; padding: 8px 16px; border-radius: 20px; border: 1px solid #2a2a2a; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 99; letter-spacing: 1px; }
   .save-toast.show { opacity: 1; }
-
-  /* Strength tab */
   .strength-tab { padding: 16px 16px 0; }
   .strength-day-block { margin-bottom: 20px; }
   .strength-day-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px 14px; border-radius: 10px; }
@@ -101,9 +99,9 @@ const PLAN = [
   {day:7,label:"REST",sub:"Full Rest Day",color:"#FF8C00",rest:true,exercises:[{name:"Full Rest",sets:1,reps:"All day",cardio:true},{name:"Sleep 7–9 hrs",sets:1,reps:"Tonight",cardio:true}]},
 ];
 
-const TOTAL_WEEKS = 13;
-const STORAGE_KEY = "wt_data_v2";
-let state = {week:0,dayIdx:0,tab:"tracker",expanded:null,strengthDay:0,logs:{},done:{}};
+const TOTAL_WEEKS=13;
+const STORAGE_KEY="wt_data_v2";
+let state={week:0,dayIdx:0,tab:"tracker",expanded:null,logs:{},done:{}};
 
 function loadState(){try{const s=localStorage.getItem(STORAGE_KEY);if(s){const p=JSON.parse(s);state.logs=p.logs||{};state.done=p.done||{};}}catch(e){}}
 let toastTimer=null;
@@ -117,96 +115,48 @@ function dayPct(){const day=PLAN[state.dayIdx];const comp=day.exercises.filter((
 function weekPct(){let total=0,comp=0;PLAN.forEach((d,di)=>d.exercises.forEach((_,ei)=>{total++;if(state.done[dk(state.week,di,ei)])comp++;}));return Math.round((comp/total)*100);}
 function weekPctFor(wi){let total=0,comp=0;PLAN.forEach((d,di)=>d.exercises.forEach((_,ei)=>{total++;if(state.done[dk(wi,di,ei)])comp++;}));return Math.round((comp/total)*100);}
 function dayPctFor(wi,di){const d=PLAN[di];const comp=d.exercises.filter((_,ei)=>state.done[dk(wi,di,ei)]).length;return Math.round((comp/d.exercises.length)*100);}
-
-function getBestWeight(wi,di,ei){
-  const ex=PLAN[di].exercises[ei];
-  if(ex.cardio)return null;
-  let best=0;
-  for(let si=0;si<ex.sets;si++){
-    const v=parseFloat(state.logs[lk(wi,di,ei,si,'w')]);
-    if(!isNaN(v)&&v>best)best=v;
-  }
-  return best>0?best:null;
-}
-
-function cardioNote(name){
-  if(name==="Fat Burn Finisher Circuit")return"Pick 2 exercises: battle ropes, rowing machine, jump rope, or sled push. Go hard for 40 sec, rest 20 sec. Repeat for 15 minutes.";
-  if(name==="LISS Cardio")return"Low intensity steady state: incline treadmill, stationary bike, or elliptical. Keep heart rate at 55–65% of max.";
-  if(name==="Full Rest")return"Complete rest. No training today. Let your body recover and grow.";
-  if(name==="Sleep 7–9 hrs")return"Prioritize sleep tonight. This is when muscle repair and fat oxidation peak.";
-  return"Focus on controlled, full-range movement. Use this time to recover actively.";
-}
+function getBestWeight(wi,di,ei){const ex=PLAN[di].exercises[ei];if(ex.cardio)return null;let best=0;for(let si=0;si<ex.sets;si++){const v=parseFloat(state.logs[lk(wi,di,ei,si,'w')]);if(!isNaN(v)&&v>best)best=v;}return best>0?best:null;}
+function cardioNote(name){if(name==="Fat Burn Finisher Circuit")return"Pick 2 exercises: battle ropes, rowing machine, jump rope, or sled push. Go hard for 40 sec, rest 20 sec. Repeat for 15 minutes.";if(name==="LISS Cardio")return"Low intensity steady state: incline treadmill, stationary bike, or elliptical. Keep heart rate at 55–65% of max.";if(name==="Full Rest")return"Complete rest. No training today. Let your body recover and grow.";if(name==="Sleep 7–9 hrs")return"Prioritize sleep tonight. This is when muscle repair and fat oxidation peak.";return"Focus on controlled, full-range movement. Use this time to recover actively.";}
 
 function renderStrengthTab(){
-  const liftDays = PLAN.filter(d=>!d.rest);
-  let html=`<div class="strength-tab">`;
-  html+=`<div class="section-label" style="margin-bottom:14px">Weight used per exercise across 13 weeks</div>`;
-
-  liftDays.forEach((day,_)=>{
-    const di = PLAN.indexOf(day);
-    const liftExercises = day.exercises.filter(ex=>!ex.cardio);
-    html+=`<div class="strength-day-block">`;
-    html+=`<div class="strength-day-header" style="background:${day.color}15;border:1px solid ${day.color}30">
-      <div class="strength-day-title" style="color:${day.color}">Day ${day.day} — ${day.label}</div>
-      <div style="font-size:11px;color:#666">${day.sub}</div>
-    </div>`;
-
-    liftExercises.forEach((ex,_)=>{
-      const ei = day.exercises.indexOf(ex);
-      const weights = [];
-      for(let wi=0;wi<TOTAL_WEEKS;wi++){
-        weights.push(getBestWeight(wi,di,ei));
-      }
-      const logged = weights.filter(w=>w!==null);
-      const maxW = logged.length>0?Math.max(...logged):0;
-      const firstW = logged.length>0?logged[0]:null;
-      const lastW = logged.length>0?logged[logged.length-1]:null;
-      const gain = firstW&&lastW&&lastW!==firstW?lastW-firstW:null;
-
-      html+=`<div class="strength-ex-card">`;
-      html+=`<div class="strength-ex-name">${ex.name}</div>`;
-
+  const liftDays=PLAN.filter(d=>!d.rest);
+  let html=`<div class="strength-tab"><div class="section-label" style="margin-bottom:14px">Weight used per exercise across 13 weeks</div>`;
+  liftDays.forEach(day=>{
+    const di=PLAN.indexOf(day);
+    const liftExercises=day.exercises.filter(ex=>!ex.cardio);
+    html+=`<div class="strength-day-block"><div class="strength-day-header" style="background:${day.color}15;border:1px solid ${day.color}30"><div><div class="strength-day-title" style="color:${day.color}">Day ${day.day} — ${day.label}</div><div style="font-size:11px;color:#666;margin-top:2px">${day.sub}</div></div></div>`;
+    liftExercises.forEach(ex=>{
+      const ei=day.exercises.indexOf(ex);
+      const weights=[];
+      for(let wi=0;wi<TOTAL_WEEKS;wi++)weights.push(getBestWeight(wi,di,ei));
+      const logged=weights.filter(w=>w!==null);
+      const maxW=logged.length>0?Math.max(...logged):0;
+      const firstW=logged.length>0?logged[0]:null;
+      const lastW=logged.length>0?logged[logged.length-1]:null;
+      const gain=firstW&&lastW&&lastW!==firstW?lastW-firstW:null;
+      html+=`<div class="strength-ex-card"><div class="strength-ex-name">${ex.name}</div>`;
       if(logged.length===0){
-        html+=`<div class="strength-no-data">No data logged yet — start tracking to see your progress here.</div>`;
+        html+=`<div class="strength-no-data">No data logged yet — start tracking to see progress here.</div>`;
       } else {
-        // Bar chart
         html+=`<div class="strength-chart">`;
         weights.forEach((w,wi)=>{
-          const heightPct = maxW>0&&w?(w/maxW)*100:0;
-          if(w){
-            html+=`<div class="strength-bar-wrap" title="Wk${wi+1}: ${w}lbs">
-              <div class="strength-bar" style="height:${heightPct}%;background:${day.color};opacity:${wi===state.week?1:0.4}"></div>
-            </div>`;
-          } else {
-            html+=`<div class="strength-bar-wrap"><div class="strength-bar-empty"></div></div>`;
-          }
+          const h=maxW>0&&w?(w/maxW)*100:0;
+          if(w)html+=`<div class="strength-bar-wrap"><div class="strength-bar" style="height:${h}%;background:${day.color};opacity:${wi===state.week?1:0.4}"></div></div>`;
+          else html+=`<div class="strength-bar-wrap"><div class="strength-bar-empty"></div></div>`;
         });
-        html+=`</div>`;
-
-        // Week labels (show every other to save space)
-        html+=`<div class="strength-week-labels">`;
-        for(let wi=0;wi<TOTAL_WEEKS;wi++){
-          html+=`<div class="strength-week-label" style="color:${wi===state.week?day.color:'#333'}">${wi%2===0?`W${wi+1}`:''}</div>`;
-        }
-        html+=`</div>`;
-
-        // Stats row
-        html+=`<div class="strength-stats">`;
+        html+=`</div><div class="strength-week-labels">`;
+        for(let wi=0;wi<TOTAL_WEEKS;wi++)html+=`<div class="strength-week-label" style="color:${wi===state.week?day.color:'#333'}">${wi%2===0?`W${wi+1}`:''}</div>`;
+        html+=`</div><div class="strength-stats">`;
         html+=`<div class="strength-stat"><div class="strength-stat-val" style="color:${day.color}">${firstW||'—'}</div><div class="strength-stat-label">Start (lbs)</div></div>`;
         html+=`<div class="strength-stat"><div class="strength-stat-val" style="color:${day.color}">${maxW||'—'}</div><div class="strength-stat-label">Best (lbs)</div></div>`;
         html+=`<div class="strength-stat"><div class="strength-stat-val" style="color:${day.color}">${lastW||'—'}</div><div class="strength-stat-label">Latest (lbs)</div></div>`;
         html+=`</div>`;
-
-        if(gain!==null){
-          const up = gain>0;
-          html+=`<div class="strength-gain" style="color:${up?'#00C896':'#FF4D00'}">${up?'▲':'▼'} ${Math.abs(gain)} lbs ${up?'gained':'lost'} since Week 1</div>`;
-        }
+        if(gain!==null)html+=`<div class="strength-gain" style="color:${gain>0?'#00C896':'#FF4D00'}">${gain>0?'▲':'▼'} ${Math.abs(gain)} lbs ${gain>0?'gained':'lost'} since Week 1</div>`;
       }
       html+=`</div>`;
     });
     html+=`</div>`;
   });
-
   html+=`</div>`;
   return html;
 }
@@ -221,7 +171,7 @@ function render(){
 
   if(state.tab==="tracker"){
     html+=`<div class="section"><div class="section-label">Week</div><div class="week-row">`;
-    for(let i=0;i<TOTAL_WEEKS;i++){html+=`<button class="week-btn" onclick="setWeek(${i})" style="border-color:${state.week===i?accent:'#1e1e1e'};background:${state.week===i?accent+'20':'#111'};color:${state.week===i?accent:'#555'}">WK ${i+1}</button>`;}
+    for(let i=0;i<TOTAL_WEEKS;i++)html+=`<button class="week-btn" onclick="setWeek(${i})" style="border-color:${state.week===i?accent:'#1e1e1e'};background:${state.week===i?accent+'20':'#111'};color:${state.week===i?accent:'#555'}">WK ${i+1}</button>`;
     html+=`</div></div>`;
     html+=`<div class="prog-wrap"><div class="prog-header"><span>Week ${state.week+1} Progress</span><span style="color:${accent}">${wp}%</span></div><div class="prog-bar"><div class="prog-fill" style="width:${wp}%;background:${accent}"></div></div></div>`;
     html+=`<div class="day-row">`;
@@ -239,7 +189,7 @@ function render(){
     html+=`</div>`;
 
   } else {
-    html += renderStrengthTab();
+    html+=renderStrengthTab();
   }
 
   document.getElementById("app").innerHTML=html;
