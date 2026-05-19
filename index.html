@@ -254,23 +254,71 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .sets-heading {
   font-size: 10px; font-weight: 600; color: var(--text-3);
   letter-spacing: 1px; text-transform: uppercase;
-  padding-top: 12px; margin-bottom: 10px;
+  padding-top: 12px; margin-bottom: 12px;
 }
-.sets-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.set-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.sets-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.set-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .set-num {
   font-size: 9px; font-weight: 600; color: var(--text-3);
   letter-spacing: 1px; text-transform: uppercase;
 }
-.set-input {
-  width: 58px; padding: 7px 4px;
-  background: var(--surface-2); border: 1.5px solid var(--border);
-  border-radius: 8px; color: var(--navy);
-  font-size: 13px; font-weight: 600;
-  text-align: center; outline: none; -webkit-appearance: none;
-  transition: border-color 0.15s;
+
+/* ── SCROLL PICKER ── */
+.picker-group { display: flex; gap: 4px; align-items: flex-end; }
+.picker-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
 }
-.set-input:focus { border-color: var(--blue); background: var(--blue-light); }
+.picker-unit {
+  font-size: 9px; font-weight: 600; color: var(--text-3);
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.picker {
+  width: 64px; height: 120px;
+  overflow: hidden; position: relative;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  cursor: ns-resize;
+  user-select: none; -webkit-user-select: none;
+}
+.picker::before, .picker::after {
+  content: '';
+  position: absolute; left: 0; right: 0; z-index: 2;
+  height: 36px; pointer-events: none;
+}
+.picker::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--surface-2) 0%, transparent 100%);
+}
+.picker::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--surface-2) 0%, transparent 100%);
+}
+.picker-selector {
+  position: absolute; left: 4px; right: 4px;
+  top: 50%; transform: translateY(-50%);
+  height: 36px; border-radius: 8px;
+  background: var(--blue-light);
+  border: 1.5px solid var(--blue);
+  pointer-events: none; z-index: 1;
+}
+.picker-list {
+  display: flex; flex-direction: column;
+  align-items: center;
+  transition: transform 0.15s ease;
+  padding: 42px 0;
+  will-change: transform;
+}
+.picker-item {
+  height: 36px; line-height: 36px;
+  font-size: 15px; font-weight: 700;
+  color: var(--text-3); text-align: center;
+  width: 100%; flex-shrink: 0;
+  transition: color 0.1s, font-size 0.1s;
+}
+.picker-item.selected {
+  color: var(--navy); font-size: 17px;
+}
 
 /* ── PROGRESS TAB ── */
 .prog-section { padding: 16px 16px 0; }
@@ -541,7 +589,6 @@ function renderCalendar() {
         <div class="today-day-sub">${todayDay.sub}</div>
         <div class="today-date-str">${fmtDate(t)}</div>
       </div>
-      ${!isToday ? `<button class="jump-btn" onclick="jumpToToday()">Jump to Today</button>` : ''}
     </div>`;
   }
 
@@ -550,7 +597,10 @@ function renderCalendar() {
   html += `<div class="cal-nav">
     <button class="cal-nav-btn" onclick="prevMonth()">‹</button>
     <div class="cal-month-label">${MONTHS[S.calMonth]} ${S.calYear}</div>
-    <button class="cal-nav-btn" onclick="nextMonth()">›</button>
+    <div style="display:flex;gap:6px;align-items:center">
+      ${!isToday ? `<button onclick="jumpToToday()" style="padding:5px 10px;border-radius:8px;background:var(--blue);color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer">Today</button>` : `<button style="padding:5px 10px;border-radius:8px;background:var(--blue-light);color:var(--blue);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:1.5px solid var(--blue);cursor:default">Today</button>`}
+      <button class="cal-nav-btn" onclick="nextMonth()">›</button>
+    </div>
   </div>`;
 
   html += `<div class="cal-grid">`;
@@ -657,16 +707,29 @@ function renderCalendar() {
         if (ex.cardio) {
           html += `<div class="ex-tip">${cardioNote(ex.name)}</div>`;
         } else {
-          html += `<div class="sets-heading">Log weight + reps per set</div><div class="sets-row">`;
+          html += `<div class="sets-heading">Scroll to set weight &amp; reps</div><div class="sets-row">`;
           for (let si=0; si<ex.sets; si++) {
-            const wv = S.logs[lk(sel,ei,si,'w')]||'';
-            const rv = S.logs[lk(sel,ei,si,'r')]||'';
+            const wv = parseInt(S.logs[lk(sel,ei,si,'w')])||0;
+            const rv = parseInt(S.logs[lk(sel,ei,si,'r')])||0;
+            const pid = `p-${sel}-${ei}-${si}`;
             html += `<div class="set-col">
               <div class="set-num">Set ${si+1}</div>
-              <input class="set-input" type="number" inputmode="decimal" placeholder="lbs"
-                value="${wv}" onchange="setLog('${sel}',${ei},${si},'w',this.value)">
-              <input class="set-input" type="number" inputmode="decimal" placeholder="reps"
-                value="${rv}" onchange="setLog('${sel}',${ei},${si},'r',this.value)">
+              <div class="picker-group">
+                <div class="picker-wrap">
+                  <div class="picker" id="${pid}-w" data-ds="${sel}" data-ei="${ei}" data-si="${si}" data-field="w" data-val="${wv}">
+                    <div class="picker-selector"></div>
+                    <div class="picker-list" id="${pid}-w-list"></div>
+                  </div>
+                  <div class="picker-unit">lbs</div>
+                </div>
+                <div class="picker-wrap">
+                  <div class="picker" id="${pid}-r" data-ds="${sel}" data-ei="${ei}" data-si="${si}" data-field="r" data-val="${rv}">
+                    <div class="picker-selector"></div>
+                    <div class="picker-list" id="${pid}-r-list"></div>
+                  </div>
+                  <div class="picker-unit">reps</div>
+                </div>
+              </div>
             </div>`;
           }
           html += `</div>`;
@@ -852,6 +915,142 @@ function render() {
   else                          html += renderStrength();
 
   document.getElementById("app").innerHTML = html;
+  requestAnimationFrame(() => {
+    initPickers();
+    // Scroll workout section into view when a date is selected
+    if (S.tab === 'calendar') {
+      const ws = document.querySelector('.workout-section');
+      if (ws) ws.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+}
+
+
+// ─── SCROLL PICKER ENGINE ───────────────────────────────
+const LBS_VALUES  = [];
+for (let v=0; v<=300; v+=5) LBS_VALUES.push(v);   // 0,5,10,...,300
+
+const REPS_VALUES = [];
+for (let v=0; v<=50; v++)   REPS_VALUES.push(v);   // 0,1,2,...,50
+
+const ITEM_H = 36; // px — must match CSS
+
+function buildPickerList(el, values, currentVal) {
+  const list = el.querySelector('.picker-list');
+  list.innerHTML = '';
+  values.forEach(v => {
+    const item = document.createElement('div');
+    item.className = 'picker-item' + (v === currentVal ? ' selected' : '');
+    item.textContent = v;
+    list.appendChild(item);
+  });
+  const idx = values.indexOf(currentVal);
+  list.style.transform = `translateY(${-idx * ITEM_H}px)`;
+}
+
+function getPickerIdx(el) {
+  const list = el.querySelector('.picker-list');
+  const t = new DOMMatrix(list.style.transform).m42;
+  return Math.round(-t / ITEM_H);
+}
+
+function snapPicker(el, values, ds, ei, si, field) {
+  const list   = el.querySelector('.picker-list');
+  let idx      = getPickerIdx(el);
+  idx          = Math.max(0, Math.min(idx, values.length - 1));
+  const val    = values[idx];
+  list.style.transition = 'transform 0.2s cubic-bezier(0.25,0.46,0.45,0.94)';
+  list.style.transform  = `translateY(${-idx * ITEM_H}px)`;
+  // Update selected styling
+  list.querySelectorAll('.picker-item').forEach((item, i) => {
+    item.classList.toggle('selected', i === idx);
+  });
+  // Save
+  S.logs[lk(ds, ei, si, field)] = String(val);
+  save();
+}
+
+function initPickers() {
+  document.querySelectorAll('.picker').forEach(el => {
+    if (el.dataset.init) return;
+    el.dataset.init = '1';
+
+    const field  = el.dataset.field;
+    const ds     = el.dataset.ds;
+    const ei     = parseInt(el.dataset.ei);
+    const si     = parseInt(el.dataset.si);
+    const values = field === 'w' ? LBS_VALUES : REPS_VALUES;
+    const stored = parseInt(S.logs[lk(ds, ei, si, field)]) || 0;
+    const curVal = values.includes(stored) ? stored : values[0];
+
+    buildPickerList(el, values, curVal);
+
+    // ── Touch handling ──
+    let startY = 0, lastY = 0, startOffset = 0, isDragging = false, vel = 0, lastTime = 0;
+    const list = el.querySelector('.picker-list');
+
+    function getOffset() {
+      return new DOMMatrix(list.style.transform).m42;
+    }
+
+    el.addEventListener('touchstart', e => {
+      e.preventDefault();
+      list.style.transition = 'none';
+      startY     = e.touches[0].clientY;
+      lastY      = startY;
+      startOffset = getOffset();
+      isDragging = true;
+      vel        = 0;
+      lastTime   = Date.now();
+    }, { passive: false });
+
+    el.addEventListener('touchmove', e => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const y    = e.touches[0].clientY;
+      const now  = Date.now();
+      vel        = (y - lastY) / (now - lastTime + 1);
+      lastY      = y;
+      lastTime   = now;
+      const dy   = y - startY;
+      const maxOffset = 0;
+      const minOffset = -(values.length - 1) * ITEM_H;
+      let newOffset = Math.max(minOffset, Math.min(maxOffset, startOffset + dy));
+      list.style.transform = `translateY(${newOffset}px)`;
+      // Live update selected class
+      const idx = Math.round(-newOffset / ITEM_H);
+      list.querySelectorAll('.picker-item').forEach((item, i) => {
+        item.classList.toggle('selected', i === idx);
+      });
+    }, { passive: false });
+
+    el.addEventListener('touchend', e => {
+      if (!isDragging) return;
+      isDragging = false;
+      // Apply momentum
+      const momentumDelta = vel * 80;
+      const projected = getOffset() + momentumDelta;
+      const maxOffset = 0;
+      const minOffset = -(values.length - 1) * ITEM_H;
+      const clamped   = Math.max(minOffset, Math.min(maxOffset, projected));
+      list.style.transition = 'transform 0.2s ease';
+      list.style.transform  = `translateY(${clamped}px)`;
+      setTimeout(() => snapPicker(el, values, ds, ei, si, field), 200);
+    });
+
+    // ── Mouse wheel support (desktop preview) ──
+    el.addEventListener('wheel', e => {
+      e.preventDefault();
+      const list2    = el.querySelector('.picker-list');
+      list2.style.transition = 'none';
+      const offset   = getOffset();
+      const maxOffset = 0;
+      const minOffset = -(values.length - 1) * ITEM_H;
+      const newOffset = Math.max(minOffset, Math.min(maxOffset, offset - Math.sign(e.deltaY) * ITEM_H));
+      list2.style.transform = `translateY(${newOffset}px)`;
+      setTimeout(() => snapPicker(el, values, ds, ei, si, field), 50);
+    }, { passive: false });
+  });
 }
 
 // ─── ACTIONS ────────────────────────────────────────────
