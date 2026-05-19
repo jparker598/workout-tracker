@@ -421,12 +421,17 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 <div class="save-toast" id="toast">✓ Saved</div>
 <script>
 // ─── PROGRAM DATA ───────────────────────────────────────
-const START_DATE  = new Date(2026, 4, 19); // May 19 2026
-const TOTAL_WEEKS = 13;
-const TOTAL_DAYS  = 91;
+const START_DATE  = new Date(2026, 4, 18); // May 18 2026
+const TOTAL_WEEKS = 33;
+const TOTAL_DAYS  = 228;
 
 const PLAN = [
-  { dayNum:1, label:"PUSH",           abbr:"PUSH", sub:"Chest · Shoulders · Arms",     color:"#1493FF",
+  { dayNum:1, label:"REST",           abbr:"REST", sub:"Active Recovery",              color:"#F5A623", rest:true,
+    exercises:[
+      {name:"8,000–10,000 Steps",          sets:1, reps:"All day",   cardio:true},
+      {name:"Mobility / Stretching",       sets:1, reps:"20–30 min", cardio:true},
+    ]},
+  { dayNum:2, label:"PUSH",           abbr:"PUSH", sub:"Chest · Shoulders · Arms",     color:"#1493FF",
     exercises:[
       {name:"Incline Barbell Press",       sets:4, reps:"6–8"},
       {name:"Cable Fly / Pec Deck",        sets:3, reps:"12–15"},
@@ -436,7 +441,7 @@ const PLAN = [
       {name:"Overhead Tricep Extension",   sets:3, reps:"10–12"},
       {name:"LISS Cardio",                 sets:1, reps:"10–15 min", cardio:true},
     ]},
-  { dayNum:2, label:"PULL",           abbr:"PULL", sub:"Back · Rear Delt · Arms",      color:"#7B4FFF",
+  { dayNum:3, label:"PULL",           abbr:"PULL", sub:"Back · Rear Delt · Arms",      color:"#7B4FFF",
     exercises:[
       {name:"Weighted Pull-Ups",           sets:4, reps:"6–8"},
       {name:"Barbell Row",                 sets:4, reps:"6–8"},
@@ -446,7 +451,7 @@ const PLAN = [
       {name:"Incline Dumbbell Curl",       sets:3, reps:"10–12"},
       {name:"LISS Cardio",                 sets:1, reps:"10–15 min", cardio:true},
     ]},
-  { dayNum:3, label:"LEGS",           abbr:"LEGS", sub:"Quads · Hamstrings · Calves",  color:"#2CB459",
+  { dayNum:4, label:"LEGS",           abbr:"LEGS", sub:"Quads · Hamstrings · Calves",  color:"#2CB459",
     exercises:[
       {name:"Barbell Squat",               sets:4, reps:"5–8"},
       {name:"Romanian Deadlift",           sets:4, reps:"8–10"},
@@ -455,12 +460,12 @@ const PLAN = [
       {name:"Standing Calf Raise",         sets:4, reps:"15–20"},
       {name:"LISS Cardio",                 sets:1, reps:"10–15 min", cardio:true},
     ]},
-  { dayNum:4, label:"REST",           abbr:"REST", sub:"Active Recovery",              color:"#F5A623", rest:true,
+  { dayNum:5, label:"REST",           abbr:"REST", sub:"Full Rest Day",                color:"#F5A623", rest:true,
     exercises:[
-      {name:"8,000–10,000 Steps",          sets:1, reps:"All day",   cardio:true},
-      {name:"Mobility / Stretching",       sets:1, reps:"20–30 min", cardio:true},
+      {name:"Full Rest",                   sets:1, reps:"All day",  cardio:true},
+      {name:"Sleep 7–9 hrs",              sets:1, reps:"Tonight",  cardio:true},
     ]},
-  { dayNum:5, label:"UPPER",          abbr:"UPPR", sub:"Chest · Back · Arms",          color:"#E8445A",
+  { dayNum:6, label:"UPPER",          abbr:"UPPR", sub:"Chest · Back · Arms",          color:"#E8445A",
     exercises:[
       {name:"Flat Dumbbell Press",         sets:3, reps:"8–12"},
       {name:"Cable Straight-Arm Pulldown", sets:3, reps:"12–15"},
@@ -470,7 +475,7 @@ const PLAN = [
       {name:"Skull Crushers",              sets:3, reps:"10–12"},
       {name:"LISS Cardio",                 sets:1, reps:"10–15 min", cardio:true},
     ]},
-  { dayNum:6, label:"ABS+SHLD",       abbr:"ABS",  sub:"Core · Shoulders · Fat Burn",  color:"#00B3A6",
+  { dayNum:7, label:"ABS+SHLD",       abbr:"ABS",  sub:"Core · Shoulders · Fat Burn",  color:"#00B3A6",
     exercises:[
       {name:"Machine Shoulder Press",      sets:3, reps:"10–12"},
       {name:"Cable Lateral Raise",         sets:3, reps:"15–20"},
@@ -479,11 +484,6 @@ const PLAN = [
       {name:"Decline Sit-Up",             sets:3, reps:"12–15"},
       {name:"Plank",                       sets:3, reps:"45 sec"},
       {name:"Fat Burn Finisher Circuit",   sets:1, reps:"15 min", cardio:true},
-    ]},
-  { dayNum:7, label:"REST",           abbr:"REST", sub:"Full Rest Day",                color:"#F5A623", rest:true,
-    exercises:[
-      {name:"Full Rest",                   sets:1, reps:"All day",  cardio:true},
-      {name:"Sleep 7–9 hrs",              sets:1, reps:"Tonight",  cardio:true},
     ]},
 ];
 
@@ -902,7 +902,7 @@ function render() {
 
   html += `<div class="header">
     <div class="header-title">Workout Tracker</div>
-    <div class="header-sub">13-Week Program · Starts May 19</div>
+    <div class="header-sub">May 18 – Dec 31, 2026</div>
     <div class="tab-row">
       <button class="tab-btn${S.tab==='calendar'?' active':''}" onclick="switchTab('calendar')">Calendar</button>
       <button class="tab-btn${S.tab==='progress'?' active':''}" onclick="switchTab('progress')">Progress</button>
