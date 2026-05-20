@@ -108,45 +108,69 @@ body { background: var(--bg); color: var(--text-1); transition: background 0.2s,
 .picker-group { display: flex; gap: 4px; }
 .picker-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .picker-unit { font-size: 9px; font-weight: 600; color: var(--text-3); letter-spacing: 1px; text-transform: uppercase; }
-.picker { width: 62px; height: 120px; overflow: hidden; position: relative; border-radius: 10px; background: var(--surface-2); border: 1.5px solid var(--border); cursor: ns-resize; user-select: none; -webkit-user-select: none; }
-.picker::before, .picker::after { content: ''; position: absolute; left: 0; right: 0; z-index: 2; height: 36px; pointer-events: none; }
-.picker::before { top: 0; background: linear-gradient(to bottom, var(--surface-2), transparent); }
-.picker::after { bottom: 0; background: linear-gradient(to top, var(--surface-2), transparent); }
-.picker-selector { position: absolute; left: 4px; right: 4px; top: 50%; transform: translateY(-50%); height: 36px; border-radius: 8px; background: var(--blue-light); border: 1.5px solid var(--blue); pointer-events: none; z-index: 1; }
-.picker-list { display: flex; flex-direction: column; align-items: center; padding: 42px 0; will-change: transform; }
-.picker-item { height: 36px; line-height: 36px; font-size: 15px; font-weight: 700; color: var(--text-3); text-align: center; width: 100%; flex-shrink: 0; transition: color 0.1s, font-size 0.1s; }
-.picker-item.selected { color: var(--text-1); font-size: 17px; }
+.picker { width: 64px; height: 144px; overflow: hidden; position: relative; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--border); cursor: ns-resize; user-select: none; -webkit-user-select: none; box-shadow: var(--shadow-sm); }
+.picker::before, .picker::after { content: ''; position: absolute; left: 0; right: 0; z-index: 2; height: 48px; pointer-events: none; }
+.picker::before { top: 0; background: linear-gradient(to bottom, var(--surface) 30%, transparent 100%); }
+.picker::after { bottom: 0; background: linear-gradient(to top, var(--surface) 30%, transparent 100%); }
+.picker-line-top, .picker-line-bot { position: absolute; left: 0; right: 0; height: 1px; background: var(--blue); opacity: 0.5; z-index: 3; pointer-events: none; }
+.picker-line-top { top: calc(50% - 20px); }
+.picker-line-bot { top: calc(50% + 19px); }
+.picker-list { display: flex; flex-direction: column; align-items: center; padding: 52px 0; will-change: transform; }
+.picker-item { height: 40px; line-height: 40px; font-size: 14px; font-weight: 500; color: var(--text-3); text-align: center; width: 100%; flex-shrink: 0; transition: color 0.08s, font-size 0.08s, font-weight 0.08s; }
+.picker-item.selected { color: #1493FF; font-size: 20px; font-weight: 800; }
 
-/* ── FOOD TRACKER (inline under workout) ── */
+/* ── FOOD TRACKER ── */
 .food-section { margin: 0 14px 10px; }
-.food-toggle-btn { width: 100%; padding: 12px 16px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: var(--shadow-sm); }
+.food-toggle-btn { width: 100%; padding: 13px 16px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: var(--shadow-sm); }
 .food-toggle-label { font-size: 13px; font-weight: 600; color: var(--text-1); display: flex; align-items: center; gap: 8px; }
+.food-toggle-right { display: flex; align-items: center; gap: 10px; }
 .food-toggle-summary { font-size: 11px; color: var(--text-3); }
-.food-panel { background: var(--surface); border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); padding: 14px; }
-.food-macro-bars { display: flex; gap: 6px; margin-bottom: 14px; }
-.macro-bar-wrap { flex: 1; }
-.macro-bar-label { font-size: 9px; font-weight: 700; color: var(--text-2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; display: flex; justify-content: space-between; }
-.macro-bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.macro-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
-.food-entries { margin-bottom: 12px; }
-.food-entry-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-.food-entry-name { flex: 1; font-size: 12px; font-weight: 600; color: var(--text-1); }
-.food-entry-macros { font-size: 10px; color: var(--text-3); text-align: right; line-height: 1.5; }
-.food-entry-del { width: 22px; height: 22px; border-radius: 50%; background: var(--border); color: var(--text-3); font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-.food-add-area { display: flex; flex-direction: column; gap: 8px; }
-.food-search-row { display: flex; gap: 6px; }
-.food-search-input { flex: 1; padding: 9px 12px; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-1); font-size: 13px; outline: none; }
-.food-search-input:focus { border-color: var(--blue); }
-.food-search-btn { padding: 9px 14px; background: var(--blue); color: #fff; border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; border: none; flex-shrink: 0; }
-.food-manual-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; }
-.food-manual-input { padding: 7px 4px; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-1); font-size: 12px; font-weight: 600; text-align: center; outline: none; }
-.food-manual-input:focus { border-color: var(--blue); }
-.food-manual-label { font-size: 8px; color: var(--text-3); text-align: center; margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
-.food-add-btn { width: 100%; padding: 10px; background: var(--green); color: #fff; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer; border: none; letter-spacing: 0.5px; }
-.food-searching { font-size: 12px; color: var(--text-3); text-align: center; padding: 8px 0; }
-.food-search-result { background: var(--surface-2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; cursor: pointer; margin-bottom: 6px; }
-.food-result-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
-.food-result-macros { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.food-panel { background: var(--surface); border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); overflow: hidden; }
+
+/* Macro ring row */
+.food-macro-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+.macro-col { flex: 1; padding: 10px 4px; text-align: center; border-right: 1px solid var(--border); }
+.macro-col:last-child { border-right: none; }
+.macro-val { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 900; line-height: 1; }
+.macro-lbl { font-size: 8px; font-weight: 700; color: var(--text-3); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.macro-sub { font-size: 9px; color: var(--text-3); margin-top: 1px; }
+.macro-bar-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.macro-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+/* Food entry list */
+.food-entries { }
+.food-entry-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.food-entry-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-1); }
+.food-entry-macros { font-size: 10px; color: var(--text-3); text-align: right; line-height: 1.6; }
+.food-entry-del { width: 24px; height: 24px; border-radius: 50%; background: #FFE5E8; color: #E8445A; font-size: 13px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-weight: 700; }
+
+/* Add food area */
+.food-add-wrap { padding: 12px 14px; }
+.food-mode-toggle { display: flex; background: var(--surface-2); border-radius: 8px; padding: 3px; margin-bottom: 12px; gap: 3px; }
+.food-mode-btn { flex: 1; padding: 7px; border-radius: 6px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; color: var(--text-3); transition: all 0.15s; }
+.food-mode-btn.active { background: var(--surface); color: var(--blue); box-shadow: var(--shadow-sm); }
+
+/* Search mode */
+.food-search-bar { display: flex; gap: 6px; margin-bottom: 10px; }
+.food-search-input { flex: 1; padding: 11px 13px; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text-1); font-size: 14px; outline: none; -webkit-appearance: none; }
+.food-search-input:focus { border-color: var(--blue); background: var(--surface); }
+.food-search-btn { padding: 11px 16px; background: var(--blue); color: #fff; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; flex-shrink: 0; }
+.food-searching { font-size: 12px; color: var(--text-3); text-align: center; padding: 12px 0; }
+.food-result-card { background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer; margin-bottom: 8px; active: background var(--blue-light); transition: background 0.1s; }
+.food-result-card:active { background: var(--blue-light); border-color: var(--blue); }
+.food-result-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
+.food-result-macros { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+.food-result-tap { font-size: 10px; color: var(--blue); margin-top: 4px; font-weight: 600; }
+
+/* Manual mode */
+.food-manual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.food-field-wrap { display: flex; flex-direction: column; gap: 4px; }
+.food-field-label { font-size: 10px; font-weight: 700; color: var(--text-2); letter-spacing: 0.8px; text-transform: uppercase; }
+.food-field-input { padding: 11px 12px; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text-1); font-size: 14px; font-weight: 600; outline: none; -webkit-appearance: none; width: 100%; }
+.food-field-input:focus { border-color: var(--blue); background: var(--surface); }
+.food-add-btn { width: 100%; padding: 13px; background: var(--green); color: #fff; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; margin-top: 2px; letter-spacing: 0.3px; }
+.food-add-btn:active { opacity: 0.85; }
+.food-searching { color: var(--text-3); font-size: 12px; text-align: center; padding: 10px; }
 
 /* ── FOOD TAB ── */
 .food-tab-section { padding: 14px 14px 0; }
@@ -265,17 +289,33 @@ function weekNum(date)        { const diff=Math.round((date-START_DATE)/86400000
 const SK = "wt_v5";
 let S = {
   tab:"calendar", calYear:null, calMonth:null, selDate:null,
-  expanded:null, foodOpen:false, foodCalYear:null, foodCalMonth:null,
+  expanded:null, foodOpen:false, foodMode:'search', foodCalYear:null, foodCalMonth:null,
   darkMode:false,
   logs:{}, done:{},
   food:{},        // dateKey -> [{name,cal,protein,carbs,fat}]
-  foodSearch:{},  // temp search state per render
 };
 
 function loadState() {
   try {
     const r=localStorage.getItem(SK);
-    if(r){ const p=JSON.parse(r); S.logs=p.logs||{}; S.done=p.done||{}; S.food=p.food||{}; S.darkMode=p.darkMode||false; }
+    if(r){
+      const p=JSON.parse(r);
+      S.logs=p.logs||{}; S.done=p.done||{}; S.food=p.food||{}; S.darkMode=p.darkMode||false;
+    } else {
+      // Migrate data from previous storage keys so no progress is lost
+      const oldKeys = ["wt_cal_v2","wt_cal_v1","wt_data_v2","wt_data_v1"];
+      for(const key of oldKeys){
+        const old=localStorage.getItem(key);
+        if(old){
+          try {
+            const p=JSON.parse(old);
+            S.logs=p.logs||{}; S.done=p.done||{};
+            console.log("Migrated data from",key);
+          } catch(e){}
+          break;
+        }
+      }
+    }
   } catch(e){}
   const t=today();
   S.calYear=t.getFullYear(); S.calMonth=t.getMonth();
@@ -300,10 +340,12 @@ function isAllDone(ds)  { const di=programDayIdx(parseDK(ds)); if(di<0) return f
 // ─── HAPTICS ────────────────────────────────────────────
 function haptic(type='light') {
   if(!window.navigator||!window.navigator.vibrate) return;
-  if(type==='light')  navigator.vibrate(10);
-  if(type==='medium') navigator.vibrate(20);
-  if(type==='heavy')  navigator.vibrate([30,10,30]);
-  if(type==='success')navigator.vibrate([10,50,10,50,30]);
+  // Tuned to match iOS UIImpactFeedbackGenerator feel
+  if(type==='light')   navigator.vibrate(13);
+  if(type==='medium')  navigator.vibrate(25);
+  if(type==='heavy')   navigator.vibrate(40);
+  if(type==='success') navigator.vibrate([15,60,15,60,40]);
+  if(type==='tick')    navigator.vibrate(8);
 }
 
 // ─── REST TIMER ─────────────────────────────────────────
@@ -416,6 +458,16 @@ async function searchFood(ds, query) {
 
 function addFoodEntry(ds, entry) {
   if(!S.food[ds]) S.food[ds] = [];
+  const obj = typeof entry === 'string' ? JSON.parse(entry.replace(/&quot;/g,'"')) : entry;
+  S.food[ds].push(obj);
+  _foodSearchResults = []; _foodSearchDs = null;
+  save(); render();
+}
+
+function addFoodByIndex(ds, idx) {
+  const entry = _foodSearchResults[idx];
+  if(!entry) return;
+  if(!S.food[ds]) S.food[ds] = [];
   S.food[ds].push(entry);
   _foodSearchResults = []; _foodSearchDs = null;
   save(); render();
@@ -439,22 +491,24 @@ function addManualFood(ds) {
 function renderFoodPanel(ds, accent) {
   const entries = getFoodEntries(ds);
   const totals  = getFoodTotals(ds);
-  const macros  = [
-    {key:'cal',    label:'Cals',    color:accent,        target:FOOD_TARGETS.cal},
-    {key:'protein',label:'Protein', color:'#E8445A',     target:FOOD_TARGETS.protein},
-    {key:'carbs',  label:'Carbs',   color:'#F5A623',     target:FOOD_TARGETS.carbs},
-    {key:'fat',    label:'Fat',     color:'#7B4FFF',     target:FOOD_TARGETS.fat},
+
+  const macros = [
+    {key:'cal',     label:'Cal',     color:'#1493FF', target:FOOD_TARGETS.cal,     unit:''},
+    {key:'protein', label:'Protein', color:'#E8445A', target:FOOD_TARGETS.protein, unit:'g'},
+    {key:'carbs',   label:'Carbs',   color:'#F5A623', target:FOOD_TARGETS.carbs,   unit:'g'},
+    {key:'fat',     label:'Fat',     color:'#7B4FFF', target:FOOD_TARGETS.fat,     unit:'g'},
   ];
 
-  let html = `<div class="food-macro-bars">`;
+  // Macro summary row
+  let html = `<div class="food-macro-row">`;
   macros.forEach(m => {
     const pct = Math.min(100, Math.round((totals[m.key]/m.target)*100));
-    html += `<div class="macro-bar-wrap">
-      <div class="macro-bar-label">
-        <span style="color:${m.color}">${m.label}</span>
-        <span style="color:var(--text-3)">${totals[m.key]}/${m.target}</span>
-      </div>
-      <div class="macro-bar-track"><div class="macro-bar-fill" style="width:${pct}%;background:${m.color}"></div></div>
+    const over = totals[m.key] > m.target;
+    html += `<div class="macro-col">
+      <div class="macro-val" style="color:${over?'#E8445A':m.color}">${totals[m.key]}${m.unit}</div>
+      <div class="macro-lbl" style="color:${m.color}">${m.label}</div>
+      <div class="macro-sub">/ ${m.target}${m.unit}</div>
+      <div class="macro-bar-track"><div class="macro-bar-fill" style="width:${pct}%;background:${over?'#E8445A':m.color}"></div></div>
     </div>`;
   });
   html += `</div>`;
@@ -465,52 +519,73 @@ function renderFoodPanel(ds, accent) {
     entries.forEach((e,i) => {
       html += `<div class="food-entry-row">
         <div class="food-entry-name">${e.name}</div>
-        <div class="food-entry-macros">${e.cal} cal · ${e.protein}g P<br>${e.carbs}g C · ${e.fat}g F</div>
-        <div class="food-entry-del" onclick="deleteFoodEntry('${ds}',${i});haptic('light')">✕</div>
+        <div class="food-entry-macros">${e.cal} cal<br>${e.protein}g P · ${e.carbs}g C · ${e.fat}g F</div>
+        <div class="food-entry-del" onclick="deleteFoodEntry('${ds}',${i});haptic('medium')">✕</div>
       </div>`;
     });
     html += `</div>`;
+  } else {
+    html += `<div style="padding:12px 14px;font-size:12px;color:var(--text-3);text-align:center;border-bottom:1px solid var(--border)">No food logged yet</div>`;
   }
 
-  // Search / add area
-  html += `<div class="food-add-area">`;
+  // Mode toggle + add area
+  const mode = S.foodMode || 'search';
+  html += `<div class="food-add-wrap">
+    <div class="food-mode-toggle">
+      <div class="food-mode-btn${mode==='search'?' active':''}" onclick="S.foodMode='search';render()">🔍 Search</div>
+      <div class="food-mode-btn${mode==='manual'?' active':''}" onclick="S.foodMode='manual';render()">✏️ Manual</div>
+    </div>`;
 
-  // Search
-  html += `<div class="food-search-row">
-    <input class="food-search-input" id="foodSearchInput" type="text" placeholder="Search food (e.g. chicken breast)…">
-    <button class="food-search-btn" onclick="haptic('light');searchFood('${ds}',document.getElementById('foodSearchInput').value)">Search</button>
-  </div>`;
+  if(mode === 'search') {
+    html += `<div class="food-search-bar">
+      <input class="food-search-input" id="foodSearchInput" type="text" placeholder="e.g. chicken breast, rice…" autocomplete="off" autocorrect="off">
+      <button class="food-search-btn" onclick="haptic('light');doFoodSearch('${ds}')">Search</button>
+    </div>`;
 
-  if(_foodSearching && _foodSearchDs===ds) {
-    html += `<div class="food-searching">Looking up macros…</div>`;
-  } else if(_foodSearchResults.length>0 && _foodSearchDs===ds) {
-    _foodSearchResults.forEach((r,i) => {
-      html += `<div class="food-search-result" onclick="haptic('light');addFoodEntry('${ds}',${JSON.stringify(r).replace(/"/g,'&quot;')})">
-        <div class="food-result-name">${r.name}</div>
-        <div class="food-result-macros">${r.cal} cal · ${r.protein}g protein · ${r.carbs}g carbs · ${r.fat}g fat</div>
-      </div>`;
-    });
-  }
-
-  // Manual entry
-  html += `<div>
-    <div style="font-size:10px;font-weight:600;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Or add manually</div>
-    <div class="food-manual-row">
-      <div><input class="food-manual-input" id="mf-name" type="text" placeholder="Name" style="width:100%"><div class="food-manual-label">Food</div></div>
-      <div><input class="food-manual-input" id="mf-cal"  type="number" inputmode="decimal" placeholder="0"><div class="food-manual-label">Cals</div></div>
-      <div><input class="food-manual-input" id="mf-pro"  type="number" inputmode="decimal" placeholder="0"><div class="food-manual-label">Protein</div></div>
-      <div><input class="food-manual-input" id="mf-carb" type="number" inputmode="decimal" placeholder="0"><div class="food-manual-label">Carbs</div></div>
-    </div>
-    <div class="food-manual-row" style="grid-template-columns:1fr 1fr;margin-top:5px">
-      <div><input class="food-manual-input" id="mf-fat"  type="number" inputmode="decimal" placeholder="0"><div class="food-manual-label">Fat</div></div>
-      <div style="display:flex;align-items:flex-start;padding-top:0">
-        <button class="food-add-btn" onclick="haptic('medium');addManualFood('${ds}')">+ Add</button>
+    if(_foodSearching && _foodSearchDs===ds) {
+      html += `<div class="food-searching">Looking up macros…</div>`;
+    } else if(_foodSearchResults.length>0 && _foodSearchDs===ds) {
+      _foodSearchResults.forEach((r, idx) => {
+        html += `<div class="food-result-card" onclick="haptic('medium');addFoodByIndex('${ds}',${idx})">
+          <div class="food-result-name">${r.name}</div>
+          <div class="food-result-macros">${r.cal} cal · ${r.protein}g protein · ${r.carbs}g carbs · ${r.fat}g fat</div>
+          <div class="food-result-tap">Tap to add ＋</div>
+        </div>`;
+      });
+    }
+  } else {
+    html += `<div class="food-manual-grid">
+      <div class="food-field-wrap" style="grid-column:span 2">
+        <div class="food-field-label">Food Name</div>
+        <input class="food-field-input" id="mf-name" type="text" placeholder="e.g. Greek yogurt" autocomplete="off">
+      </div>
+      <div class="food-field-wrap">
+        <div class="food-field-label">Calories</div>
+        <input class="food-field-input" id="mf-cal" type="number" inputmode="decimal" placeholder="0">
+      </div>
+      <div class="food-field-wrap">
+        <div class="food-field-label">Protein (g)</div>
+        <input class="food-field-input" id="mf-pro" type="number" inputmode="decimal" placeholder="0">
+      </div>
+      <div class="food-field-wrap">
+        <div class="food-field-label">Carbs (g)</div>
+        <input class="food-field-input" id="mf-carb" type="number" inputmode="decimal" placeholder="0">
+      </div>
+      <div class="food-field-wrap">
+        <div class="food-field-label">Fat (g)</div>
+        <input class="food-field-input" id="mf-fat" type="number" inputmode="decimal" placeholder="0">
       </div>
     </div>
-  </div>`;
+    <button class="food-add-btn" onclick="haptic('medium');addManualFood('${ds}')">+ Add Food</button>`;
+  }
 
-  html += `</div>`; // food-add-area
+  html += `</div>`; // food-add-wrap
   return html;
+}
+
+function doFoodSearch(ds) {
+  const input = document.getElementById('foodSearchInput');
+  if(input && input.value.trim()) searchFood(ds, input.value.trim());
 }
 
 // ─── RENDER: CALENDAR TAB ───────────────────────────────
@@ -615,11 +690,11 @@ function renderCalendar() {
               <div class="set-num">Set ${si+1}</div>
               <div class="picker-group">
                 <div class="picker-wrap">
-                  <div class="picker" id="${pid}-w" data-ds="${sel}" data-ei="${ei}" data-si="${si}" data-field="w" data-val="${wv}"><div class="picker-selector"></div><div class="picker-list"></div></div>
+                  <div class="picker" id="${pid}-w" data-ds="${sel}" data-ei="${ei}" data-si="${si}" data-field="w" data-val="${wv}"><div class="picker-line-top"></div><div class="picker-line-bot"></div><div class="picker-list"></div></div>
                   <div class="picker-unit">lbs</div>
                 </div>
                 <div class="picker-wrap">
-                  <div class="picker" id="${pid}-r" data-ds="${sel}" data-ei="${ei}" data-si="${si}" data-field="r" data-val="${rv}"><div class="picker-selector"></div><div class="picker-list"></div></div>
+                  <div class="picker" id="${pid}-r" data-ds="${sel}" data-ei="${ei}" data-si="${si}" data-field="r" data-val="${rv}"><div class="picker-line-top"></div><div class="picker-line-bot"></div><div class="picker-list"></div></div>
                   <div class="picker-unit">reps</div>
                 </div>
               </div>
@@ -867,7 +942,7 @@ function render(){
 }
 
 // ─── SCROLL PICKER ──────────────────────────────────────
-const LBS_VALUES=[],REPS_VALUES=[],ITEM_H=36;
+const LBS_VALUES=[],REPS_VALUES=[],ITEM_H=40;
 for(let v=0;v<=300;v+=5) LBS_VALUES.push(v);
 for(let v=0;v<=50;v++)   REPS_VALUES.push(v);
 
@@ -885,7 +960,7 @@ function snapPicker(el,values,ds,ei,si,field){
   list.style.transform=`translateY(${-idx*ITEM_H}px)`;
   list.querySelectorAll('.picker-item').forEach((item,i)=>item.classList.toggle('selected',i===idx));
   S.logs[lk(ds,ei,si,field)]=String(values[idx]);
-  haptic('light');
+  haptic('tick');
   save();
 }
 function initPickers(){
