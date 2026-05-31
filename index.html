@@ -582,6 +582,7 @@ body.dark{
   letter-spacing:.04em;
 }
 .toast.on{opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -761,36 +762,56 @@ function tip(n){
 /* ═══════════════════════════════════════════
    FOOD SEARCH — state-based, no inline JSON
 ═══════════════════════════════════════════ */
-let _results=[], _searching=false, _searchDs=null;
+// ── USDA FoodData Central — free, no auth required ──
+const USDA_KEY = "DEMO_KEY"; // 30 req/hour, 50/day — sufficient for personal use
+let _results=[], _searching=false, _searchDs=null, _searchErr=null;
 
 async function doSearch(ds) {
-  const q=document.getElementById('fsearch')?.value?.trim();
+  const q = document.getElementById('fsearch')?.value?.trim();
   if(!q) return;
-  _searching=true; _searchDs=ds; _results=[];
+  _searching=true; _searchDs=ds; _results=[]; _searchErr=null;
   render();
-  try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:500,
-        messages:[{role:"user",content:`Return ONLY a valid JSON array, no markdown, no explanation. Up to 3 common serving sizes of "${q}". Format: [{"name":"Food name (serving size)","cal":number,"protein":number,"carbs":number,"fat":number}]`}]
-      })
-    });
-    const data=await r.json();
-    const txt=data.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
-    _results=JSON.parse(txt);
-  }catch(e){ _results=[]; }
+  try {
+    // Search USDA FoodData Central
+    const searchUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(q)}&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation&pageSize=5&api_key=${USDA_KEY}`;
+    const r = await fetch(searchUrl);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    const foods = data.foods || [];
+    
+    _results = foods.slice(0,4).map(food => {
+      const nmap = {};
+      (food.foodNutrients||[]).forEach(n => { nmap[n.nutrientNumber] = n.value||0; });
+      // 208=Energy(kcal), 203=Protein, 205=Carbs, 204=Fat
+      const cal     = Math.round(nmap['208'] || nmap['957'] || 0);
+      const protein = Math.round((nmap['203']||0)*10)/10;
+      const carbs   = Math.round((nmap['205']||0)*10)/10;
+      const fat     = Math.round((nmap['204']||0)*10)/10;
+      // Build clean name with serving size
+      const desc = food.description || food.lowercaseDescription || q;
+      const serving = food.servingSize ? ` (${food.servingSize}${food.servingSizeUnit||'g'})` : ' (100g)';
+      return { name: toTitleCase(desc.split(',')[0].trim()) + serving, cal, protein, carbs, fat };
+    }).filter(f => f.cal > 0);
+
+    if(!_results.length) _searchErr = "No results found. Try a different search term.";
+  } catch(e) {
+    console.error('Food search error:', e);
+    _searchErr = "Search failed. Check your connection and try again.";
+    _results = [];
+  }
   _searching=false;
   render();
+}
+
+function toTitleCase(str) {
+  return str.toLowerCase().replace(/\w/g, c => c.toUpperCase());
 }
 
 function pickResult(ds,i){
   const e=_results[i]; if(!e) return;
   if(!S.food[ds]) S.food[ds]=[];
-  S.food[ds].push(e);
-  _results=[]; _searchDs=null;
+  S.food[ds].push({...e});
+  _results=[]; _searchDs=null; _searchErr=null;
   H.medium(); persist(); render();
 }
 
@@ -990,9 +1011,16 @@ function rCal(){
             <div class="food-del" onclick="delFood('${sel}',${i})">✕</div>
           </div>`;
         });
+        // Running total row
+        h+=`<div style="display:flex;padding:8px 12px;background:var(--bg-2);border-top:1px solid var(--border);gap:0">
+          <div style="flex:1;text-align:center"><div style="font-size:11px;font-weight:800;color:var(--ink-1)">${ft.cal}</div><div style="font-size:8px;font-weight:700;color:var(--ink-4);text-transform:uppercase;letter-spacing:.06em">Total Cal</div></div>
+          <div style="flex:1;text-align:center"><div style="font-size:11px;font-weight:800;color:#E8445A">${ft.protein}g</div><div style="font-size:8px;font-weight:700;color:var(--ink-4);text-transform:uppercase;letter-spacing:.06em">Protein</div></div>
+          <div style="flex:1;text-align:center"><div style="font-size:11px;font-weight:800;color:#F5A623">${ft.carbs}g</div><div style="font-size:8px;font-weight:700;color:var(--ink-4);text-transform:uppercase;letter-spacing:.06em">Carbs</div></div>
+          <div style="flex:1;text-align:center"><div style="font-size:11px;font-weight:800;color:#7B4FFF">${ft.fat}g</div><div style="font-size:8px;font-weight:700;color:var(--ink-4);text-transform:uppercase;letter-spacing:.06em">Fat</div></div>
+        </div>`;
         h+=`</div>`;
       } else {
-        h+=`<div class="food-empty">No food logged yet</div>`;
+        h+=`<div class="food-empty">No food logged yet. Search above or add manually.</div>`;
       }
 
       // Add area
@@ -1004,17 +1032,23 @@ function rCal(){
 
       if(mode==='search'){
         h+=`<div class="food-search-row">
-          <input class="food-search-in" id="fsearch" type="text" placeholder="e.g. chicken breast, oats…" autocomplete="off" autocorrect="off" autocapitalize="none">
+          <input class="food-search-in" id="fsearch" type="text" placeholder="e.g. chicken breast, oats…" autocomplete="off" autocorrect="off" autocapitalize="none" onkeydown="if(event.key==='Enter'){H.light();doSearch('${sel}')}">
           <button class="food-search-btn" onclick="H.light();doSearch('${sel}')">Search</button>
         </div>`;
         if(_searching&&_searchDs===sel){
-          h+=`<div class="food-searching">Looking up macros…</div>`;
+          h+=`<div class="food-searching">
+            <div style="display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle"></div>
+            Searching USDA database…
+          </div>`;
+        } else if(_searchErr&&_searchDs===sel){
+          h+=`<div style="padding:10px;background:var(--red-dim);border:1px solid var(--red);border-radius:var(--r-md);font-size:var(--text-sm);color:var(--red);margin-bottom:8px">${_searchErr}</div>`;
         } else if(_results.length&&_searchDs===sel){
+          h+=`<div style="font-size:10px;font-weight:700;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Tap a result to add it</div>`;
           _results.forEach((r,i)=>{
             h+=`<div class="food-result" onclick="H.medium();pickResult('${sel}',${i})">
               <div class="food-result-name">${r.name}</div>
               <div class="food-result-macros">${r.cal} cal · ${r.protein}g protein · ${r.carbs}g carbs · ${r.fat}g fat</div>
-              <div class="food-result-cta">Tap to add ＋</div>
+              <div class="food-result-cta">＋ Add this</div>
             </div>`;
           });
         }
@@ -1245,6 +1279,10 @@ function render(){
   document.getElementById('app').innerHTML=h;
   requestAnimationFrame(()=>{
     initPickers();
+    // Restore search input focus/value after re-render
+    if(_searchDs && document.getElementById('fsearch')) {
+      // don't steal focus, just preserve state — _results handles display
+    }
     if(S.tab==='cal'){
       const ws=document.querySelector('.ex-list');
       if(ws&&S.expanded!==null) ws.scrollIntoView({behavior:'smooth',block:'nearest'});
